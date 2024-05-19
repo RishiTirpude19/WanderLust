@@ -1,0 +1,19 @@
+<% layout("./layouts/boilerplate.ejs") %>
+<body>
+    <h3 style="padding-left: 5rem;">Edit Listing</h3>
+    <form method="post" action="/listings/<%= listing._id %>?_method=PUT" style="padding-left: 7rem;">
+        <input type="text" name="listing[title]" placeholder="Enter Title" required>
+        <br><br>
+        <textarea name="listing[description]" placeholder="Enter Description" required></textarea >
+        <br><br>
+        <input type="text" name="listing[location]" placeholder="Enter Location" required>
+        <br><br>
+        <input type="text" name="listing[country]" placeholder="Enter Country" required>
+        <br><br>
+        <input type="number" name="listing[price]" placeholder="Enter Price" required>
+        <br><br>
+        <input type="text" name="listing[image]" placeholder="Enter Image URL" required>
+        <br><br>
+        <button>Edit</button>
+    </form>
+</body>

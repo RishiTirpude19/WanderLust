@@ -1,0 +1,17 @@
+<% layout("./layouts/boilerplate.ejs") %>
+<body>
+    <h3 style="padding-left: 5rem;">All Listings</h3>
+    <div class="listing-cointainer" style="padding: 0;">
+      <% for (let listing of allListings){%>
+       <a href="/listings/<%=listing._id%>" style="text-decoration: none; color: black;"><div class="card" style="width: 18rem;background-color:  black; margin: 3rem; ">
+          <img src="<%= listing.image %>" class="card-img-top" alt="listing image">
+          <div class="card-body" style="border-bottom-left-radius: 3%; border-bottom-right-radius: 3%;">
+            <h5 class="card-title"><%= listing.title %></h5>
+            <p class="card-text"><%= listing.description %></p>
+            <a href="/listings/<%=listing._id%>" class="btn btn-dark" style="margin-top: 1rem; background-color: black;">Details</a>
+          </div>
+        </div></a>
+      <% } %>
+  </div>
+    
+</body>

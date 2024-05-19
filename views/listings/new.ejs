@@ -1,0 +1,54 @@
+<% layout("./layouts/boilerplate.ejs") %>
+<body>
+    <h3 style="padding-left: 5rem; padding-right: 5rem;">Create New Listing:</h3>
+    <form action="/listings" method = "POST" style="padding-left: 7rem; padding-right: 7rem;" novalidate class="needs-validation">
+        <div>
+                <div class="mb-3">
+                <label for="title"  class="form-label">Title</label>
+                <input type="text" name="listing[title]" class="form-control" id="title" required>
+                <div class="invalid-feedback">
+                    Please Enter Title.
+                  </div>
+                </div>
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea name="listing[description]" id="description" class="form-control" rows="5" required></textarea>
+                    <div class="invalid-feedback">
+                        Please Add a short Description
+                      </div>
+                </div>
+                <div class="mb-3">
+                    <label for="location" class="form-label">Location</label>
+                    <input type="text" name="listing[location]" id="location" class="form-control" required>
+                    <div class="invalid-feedback">
+                        Please Enter Correct Location.
+                      </div>
+                </div>
+                <div class="mb-3">
+                    <label for="country" class="form-label">Country</label>
+                    <input type="text" name="listing[country]"  id="country" class="form-control" required>
+                    <div class="invalid-feedback">
+                        Please Enter the Country.
+                      </div>
+                </div>
+                <div class="mb-3">
+                    <label for="price" class="form-label">Price</label>
+                    <input type="number" name="listing[price]" id="price" class="form-control" required>
+                    <div class="invalid-feedback">
+                        Please Enter a valid Price.
+                      </div>
+                </div>
+                <div class="mb-3">
+                    <label for="image" class="form-label">Image URL</label>
+                    <input type="text" name="listing[image]" id="image" class="form-control" required>
+                    <div class="invalid-feedback">
+                        Please Enter a valid URL.
+                      </div>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: center; ">
+                    <button class="btn" style="background-color:#fe424d; color: black; margin : 1rem; font-size: 1.2rem;"><b>Create</b></button>  
+                </div>
+                
+        </div> 
+    </form>
+</body>
