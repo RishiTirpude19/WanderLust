@@ -10,6 +10,28 @@ const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
 const bodyParser = require("body-parser");
 const Review = require("./models/review.js");
+const session = require("express-session");
+const flash = require("connect-flash");
+
+const sessionOptions = {
+    secret : "SuperSecretMsg",
+    resave : false ,
+    saveUninitialized : true,
+    cookie : {
+        expires : Date.now() + 7 * 24 * 60 * 60 * 1000,
+        maxAge : 7 * 24 * 60 * 60 * 1000,
+        httpOnly : true
+    }
+}
+
+app.use(session(sessionOptions));
+app.use(flash());
+
+app.use((req,res,next)=>{
+    res.locals.success = req.flash("success");
+    res.locals.faliur = req.flash("faliur");
+    next();
+})
 
 app.set("view engine" , "ejs");
 app.set("views" , path.join(__dirname , "views"))// use to connect main view engine as views folder 
@@ -52,8 +74,11 @@ app.get("/listings/new" ,async(req,res)=>{
 app.post("/listings", async(req,res ,next) =>{
     try {
         let newListing = new Listing(req.body.listing);
-    newListing.save();
-    res.redirect("/listings");
+        console.log(newListing);
+        await newListing.save();
+
+        req.flash("success" , "New Listing Created!");
+        res.redirect("/listings");
     } catch (error) {
         next(error);
     }
@@ -62,6 +87,10 @@ app.post("/listings", async(req,res ,next) =>{
 app.get("/listings/:id/edit" , async(req ,res)=>{
     let id = req.params.id;
     let listing = await Listing.findById(id);
+    if(!listing){
+        req.flash("faliur" , "NO SUCH PLACE");
+        res.redirect("/listings");
+    }
     res.render("./listings/edit.ejs" , {listing});
 })
 
@@ -78,12 +107,20 @@ app.put("/listings/:id" , async(req,res,next)=>{
 app.get("/listings/:id" ,async (req,res)=>{
     let id = req.params.id;
     let listing = await Listing.findById(id).populate("review");
+    if(!listing){
+        req.flash("faliur" , "NO SUCH PLACE");
+        res.redirect("/listings");
+    }
     res.render("./listings/show.ejs" , {listing})
 })
 
 app.post("/listings/:id/reviews" ,async (req,res)=>{
     let id = req.params.id;
     let listing = await Listing.findById(id);
+    if(!listing){
+        req.flash("faliur" , "NO SUCH PLACE");
+        res.redirect("/listings");
+    }
     let newReview = new Review(req.body.review);
     await newReview.save();
     listing.review.push(newReview);
@@ -95,8 +132,8 @@ app.post("/listings/:id/reviews" ,async (req,res)=>{
 app.delete("/listings/:id" , async(req,res ,next)=>{
     try {
         let id = req.params.id;
-    await Listing.findByIdAndDelete(id);
-    res.redirect("/listings");
+        let listing = await Listing.findByIdAndDelete(id);
+        res.redirect("/listings");
     } catch (error) {
         next(error)
     }
@@ -105,6 +142,11 @@ app.delete("/listings/:id" , async(req,res ,next)=>{
 
 app.delete("/listings/:id/reviews/:revId" ,async (req,res)=>{
     let {id , revId} = req.params;
+    let listing = await Listing.findById(id);
+    if(!listing){
+        req.flash("faliur" , "NO SUCH PLACE");
+        res.redirect("/listings");
+    }
     await Listing.findByIdAndUpdate(id , {$pull: {review: revId}});
     await Review.findByIdAndDelete(revId);
     res.redirect(`/listings/${id}`);
