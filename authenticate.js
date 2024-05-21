@@ -1,6 +1,6 @@
 module.exports.isLoggedIn = (req,res,next)=>{
     if(!req.isAuthenticated()){
-        req.flash("faliur" , "Log in first");
+        req.flash("faliur" , "You must Log in first");
         return res.redirect("/login");
     }
     next();
