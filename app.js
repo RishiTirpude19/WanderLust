@@ -16,6 +16,7 @@ const flash = require("connect-flash");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const User = require("./models/user.js");
+const {isLoggedIn} = require("./authenticate.js");
 
 const sessionOptions = {
     secret : "SuperSecretMsg",
@@ -111,11 +112,11 @@ app.get("/listings" ,async (req,res)=>{
     res.render("./listings/listings.ejs" , {allListings})
 })
 
-app.get("/listings/new" ,async(req,res)=>{
+app.get("/listings/new" , isLoggedIn ,async(req,res)=>{
     res.render("./listings/new.ejs");
 })
 
-app.post("/listings", async(req,res ,next) =>{
+app.post("/listings",isLoggedIn, async(req,res ,next) =>{
     try {
         let newListing = new Listing(req.body.listing);
         console.log(newListing);
@@ -128,7 +129,7 @@ app.post("/listings", async(req,res ,next) =>{
     }
 })
 
-app.get("/listings/:id/edit" , async(req ,res)=>{
+app.get("/listings/:id/edit" ,isLoggedIn, async(req ,res)=>{
     let id = req.params.id;
     let listing = await Listing.findById(id);
     if(!listing){
@@ -138,7 +139,7 @@ app.get("/listings/:id/edit" , async(req ,res)=>{
     res.render("./listings/edit.ejs" , {listing});
 })
 
-app.put("/listings/:id" , async(req,res,next)=>{
+app.put("/listings/:id" ,isLoggedIn, async(req,res,next)=>{
     try {
         let id = req.params.id;
     await Listing.findByIdAndUpdate(id , {...req.body.listing});
@@ -148,7 +149,7 @@ app.put("/listings/:id" , async(req,res,next)=>{
     }   
 })
 
-app.get("/listings/:id" ,async (req,res)=>{
+app.get("/listings/:id" , isLoggedIn,async (req,res)=>{
     let id = req.params.id;
     let listing = await Listing.findById(id).populate("review");
     if(!listing){
@@ -158,7 +159,7 @@ app.get("/listings/:id" ,async (req,res)=>{
     res.render("./listings/show.ejs" , {listing})
 })
 
-app.post("/listings/:id/reviews" ,async (req,res)=>{
+app.post("/listings/:id/reviews" ,isLoggedIn,async (req,res)=>{
     let id = req.params.id;
     let listing = await Listing.findById(id);
     if(!listing){
@@ -173,7 +174,7 @@ app.post("/listings/:id/reviews" ,async (req,res)=>{
     res.redirect(`/listings/${id}`);
 })
 
-app.delete("/listings/:id" , async(req,res ,next)=>{
+app.delete("/listings/:id" ,isLoggedIn, async(req,res ,next)=>{
     try {
         let id = req.params.id;
         let listing = await Listing.findByIdAndDelete(id);
@@ -184,7 +185,7 @@ app.delete("/listings/:id" , async(req,res ,next)=>{
     
 })
 
-app.delete("/listings/:id/reviews/:revId" ,async (req,res)=>{
+app.delete("/listings/:id/reviews/:revId" ,isLoggedIn,async (req,res)=>{
     let {id , revId} = req.params;
     let listing = await Listing.findById(id);
     if(!listing){
