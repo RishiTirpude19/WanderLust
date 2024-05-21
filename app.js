@@ -12,6 +12,10 @@ const bodyParser = require("body-parser");
 const Review = require("./models/review.js");
 const session = require("express-session");
 const flash = require("connect-flash");
+//for signin 
+const passport = require("passport");
+const LocalStrategy = require("passport-local");
+const User = require("./models/user.js");
 
 const sessionOptions = {
     secret : "SuperSecretMsg",
@@ -26,7 +30,11 @@ const sessionOptions = {
 
 app.use(session(sessionOptions));
 app.use(flash());
-
+app.use(passport.initialize());//for sigin in
+app.use(passport.session());//for sign in 
+passport.use(new LocalStrategy(User.authenticate()));//for sigin in
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 app.use((req,res,next)=>{
     res.locals.success = req.flash("success");
     res.locals.faliur = req.flash("faliur");
@@ -42,6 +50,42 @@ app.use(express.static(path.join(__dirname , "/public")));
 app.engine("ejs" , ejsMate);
 app.get("/",(req,res)=>{
     res.json("root")
+})
+
+// app.get("/demouser" , async (req,res)=>{
+//     let fakeUser = new User({
+//         email : "abc@gmail.com",
+//         username : "ABc",
+//     })
+//     let registeredUser = await User.register(fakeUser , "HelloWorld");
+//     res.send(registeredUser);
+// })
+
+app.get("/signup" , (req,res)=>{
+    res.render("./listings/signup.ejs");
+})
+
+app.post("/signup" ,async (req,res)=>{
+    try {
+        let {username ,email , password} = req.body;
+        const newUser =  new User({username , email});
+        const registeredUser =await User.register(newUser , password);
+        console.log(registeredUser);
+        req.flash("success" , "Welcome to WanderLust");
+        res.redirect("/listings");
+    } catch (error) {
+        req.flash("faliur" , error.message)
+        res.redirect("/signup");
+    }
+})
+
+app.get("/login" ,(req,res)=>{
+    res.render("./listings/login.ejs");
+})
+
+app.post("/login" , passport.authenticate("local" ,{failureRedirect : "/login" ,failureFlash : true}),async(req ,res)=>{
+    req.flash("success" , "Log in Successful");
+    res.redirect("/listings");
 })
 
 // app.get("/testSchema" , (req,res)=>{
