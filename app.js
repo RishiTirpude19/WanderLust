@@ -16,7 +16,7 @@ const flash = require("connect-flash");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const User = require("./models/user.js");
-const {isLoggedIn} = require("./authenticate.js");
+const {isLoggedIn, saveRedirectUrl,isOwner , isReviewAuthor} = require("./authenticate.js");
 
 const sessionOptions = {
     secret : "SuperSecretMsg",
@@ -39,6 +39,7 @@ passport.deserializeUser(User.deserializeUser());
 app.use((req,res,next)=>{
     res.locals.success = req.flash("success");
     res.locals.faliur = req.flash("faliur");
+    res.locals.user = req.user;
     next();
 })
 
@@ -71,9 +72,14 @@ app.post("/signup" ,async (req,res)=>{
         let {username ,email , password} = req.body;
         const newUser =  new User({username , email});
         const registeredUser =await User.register(newUser , password);
-        console.log(registeredUser);
-        req.flash("success" , "Welcome to WanderLust");
-        res.redirect("/listings");
+        req.login(registeredUser , (err)=>{
+            if(err){
+                return next()
+            }
+            req.flash("success" , "Welcome to WanderLust");
+            res.redirect("/listings");
+        })
+        
     } catch (error) {
         req.flash("faliur" , error.message)
         res.redirect("/signup");
@@ -84,9 +90,21 @@ app.get("/login" ,(req,res)=>{
     res.render("./listings/login.ejs");
 })
 
-app.post("/login" , passport.authenticate("local" ,{failureRedirect : "/login" ,failureFlash : true}),async(req ,res)=>{
+app.get("/logout" , (req,res,next)=>{
+    req.logout((err)=>{
+        if(err){
+           
+            next(err)
+        }
+        req.flash("success" , "Logged Out");
+        res.redirect("/listings");
+    })
+})
+
+app.post("/login" ,saveRedirectUrl, passport.authenticate("local" ,{failureRedirect : "/login" ,failureFlash : true}),async(req ,res)=>{
     req.flash("success" , "Log in Successful");
-    res.redirect("/listings");
+    let redirectUrl = res.locals.redirectUrl || "/listings";
+    res.redirect(redirectUrl);
 })
 
 // app.get("/testSchema" , (req,res)=>{
@@ -119,9 +137,8 @@ app.get("/listings/new" , isLoggedIn ,async(req,res)=>{
 app.post("/listings",isLoggedIn, async(req,res ,next) =>{
     try {
         let newListing = new Listing(req.body.listing);
-        console.log(newListing);
+        newListing.owner = req.user._id;
         await newListing.save();
-
         req.flash("success" , "New Listing Created!");
         res.redirect("/listings");
     } catch (error) {
@@ -129,7 +146,7 @@ app.post("/listings",isLoggedIn, async(req,res ,next) =>{
     }
 })
 
-app.get("/listings/:id/edit" ,isLoggedIn, async(req ,res)=>{
+app.get("/listings/:id/edit" ,isLoggedIn,isOwner, async(req ,res)=>{
     let id = req.params.id;
     let listing = await Listing.findById(id);
     if(!listing){
@@ -139,7 +156,7 @@ app.get("/listings/:id/edit" ,isLoggedIn, async(req ,res)=>{
     res.render("./listings/edit.ejs" , {listing});
 })
 
-app.put("/listings/:id" ,isLoggedIn, async(req,res,next)=>{
+app.put("/listings/:id" ,isLoggedIn,isOwner, async(req,res,next)=>{
     try {
         let id = req.params.id;
     await Listing.findByIdAndUpdate(id , {...req.body.listing});
@@ -151,7 +168,7 @@ app.put("/listings/:id" ,isLoggedIn, async(req,res,next)=>{
 
 app.get("/listings/:id" , isLoggedIn,async (req,res)=>{
     let id = req.params.id;
-    let listing = await Listing.findById(id).populate("review");
+    let listing = await Listing.findById(id).populate({path : "review" , populate :{path : "author"}}).populate("owner");
     if(!listing){
         req.flash("faliur" , "NO SUCH PLACE");
         res.redirect("/listings");
@@ -167,6 +184,7 @@ app.post("/listings/:id/reviews" ,isLoggedIn,async (req,res)=>{
         res.redirect("/listings");
     }
     let newReview = new Review(req.body.review);
+    newReview.author = req.user._id;
     await newReview.save();
     listing.review.push(newReview);
     await listing.save();
@@ -174,9 +192,10 @@ app.post("/listings/:id/reviews" ,isLoggedIn,async (req,res)=>{
     res.redirect(`/listings/${id}`);
 })
 
-app.delete("/listings/:id" ,isLoggedIn, async(req,res ,next)=>{
+app.delete("/listings/:id" ,isLoggedIn, isOwner,async(req,res ,next)=>{
     try {
         let id = req.params.id;
+        
         let listing = await Listing.findByIdAndDelete(id);
         res.redirect("/listings");
     } catch (error) {
@@ -185,7 +204,7 @@ app.delete("/listings/:id" ,isLoggedIn, async(req,res ,next)=>{
     
 })
 
-app.delete("/listings/:id/reviews/:revId" ,isLoggedIn,async (req,res)=>{
+app.delete("/listings/:id/reviews/:revId" ,isLoggedIn, isReviewAuthor ,async (req,res)=>{
     let {id , revId} = req.params;
     let listing = await Listing.findById(id);
     if(!listing){
@@ -198,7 +217,7 @@ app.delete("/listings/:id/reviews/:revId" ,isLoggedIn,async (req,res)=>{
 })
 
 app.listen(port , ()=>{
-    console.log(`Listing to port : ${port}`)
+    console.log(`connected to port : ${port}`)
 })
 
 main().then(()=>{

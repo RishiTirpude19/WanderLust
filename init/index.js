@@ -1,21 +1,46 @@
 const mongoose = require("mongoose");
-const MONGO_URL = "mongodb://127.0.0.1:27017/WANDERLUST2"
+const MONGO_URL = "mongodb://127.0.0.1:27017/WANDERLUST2";
 const Listing = require("../models/listings");
-const initialData = require("./data");
-
-async function initDb(){
-    await Listing.deleteMany({});
-    await Listing.insertMany(initialData.data);
-    console.log("Data Was Saved");
-}
-
-initDb();
-
-main().then(()=>{
-    console.log("DB connected");
-})
-.catch(err => console.log(err));
+const initialData = require("./data").data; // Importing the sample data
 
 async function main() {
-  await mongoose.connect(MONGO_URL);
+  try {
+    // Connect to the MongoDB database
+    await mongoose.connect(MONGO_URL, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log("DB connected");
+
+    // Initialize the database with the sample data
+    await initDb();
+  } catch (err) {
+    console.error("Database connection error:", err);
+  } finally {
+    // Ensure the database connection is closed after operations are completed
+    mongoose.connection.close();
+  }
 }
+
+async function initDb() {
+  try {
+    // Delete all existing documents in the Listing collection
+    await Listing.deleteMany({});
+    console.log("Existing listings deleted");
+
+    // Map over the sample data to add the owner property
+    const updatedData = initialData.map((obj) => ({
+      ...obj,
+      owner: '664c6f3e6055f9c68f8fe164',
+    }));
+    
+    // Insert the updated sample data into the Listing collection
+    await Listing.insertMany(updatedData);
+    console.log("Data was saved");
+  } catch (err) {
+    console.error("Error initializing database:", err);
+  }
+}
+
+// Run the main function to start the process
+main();

@@ -7,16 +7,20 @@
         <li><%= listing.location %></li>
         <li><%= listing.country %></li>
         <li>&#8377;<%= listing.price %></li>
-    </ul>   
-    <form action="/listings/<%= listing._id %>/edit" method="get">
-        <button>Edit</button>
-    </form>
-    <br>
-    <form action="/listings/<%= listing._id %>?_method=DELETE" method="post">
-    <button>
-        Delete
-    </button></form>
+    </ul>  
+    <%if(user._id.equals(listing.owner._id)){%>
+        <form action="/listings/<%= listing._id %>/edit" method="get">
+            <button>Edit</button>
+        </form>
+        <br>
+        <form action="/listings/<%= listing._id %>?_method=DELETE" method="post">
+        <button>
+            Delete
+        </button></form>
+    <% } %> 
+    
     <hr>
+    <%if(user) { %>
     <h3>Leave a Review</h3>
     <form action="/listings/<%= listing._id %>/reviews" method="post">
         <label for="rating">Rating</label>
@@ -29,6 +33,7 @@
         <button type="submit">Add Review</button>
         <br>
     </form>
+    <%}%>
     <hr>
     <% if(listing.review.length === 0){%>
         <h4>No Reviews yet !</h4>
@@ -37,6 +42,7 @@
     <ul>
         <% for( let review of listing.review){ %>
             <li><div class="rev-container" style="border: 0.1rem solid #fe424d ;margin: 1rem; padding:1rem ;" >
+                <div><%= review.author.username %></div>
                 <div><b><%= review.rating %> stars</b></div>
                 <div><%= review.comment %></div>
                 <br>

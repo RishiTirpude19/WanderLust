@@ -20,6 +20,18 @@
               <a class="nav-link" href="/listings/new">Add New Listing</a>
             </div>
           </div>
+          <div class="collapse navbar-collapse" id="navbarNavAltMarkup" style="margin-left:55rem ;">
+            <div class="navbar-nav">
+              <%if(user){%>
+                <a class="nav-link" href="/logout">LogOut</a>
+              <%} else {%>
+                <a class="nav-link" href="/signup">SignUp</a>
+                <a class="nav-link" href="/login">LogIn</a>
+              <%}%>
+              
+              
+            </div>
+          </div>
         </div>
       </nav>
 </body>
