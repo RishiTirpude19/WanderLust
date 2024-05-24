@@ -20,7 +20,7 @@ module.exports.saveRedirectUrl = (req,res,next)=>{
 module.exports.isOwner = async (req,res,next)=>{
     let id = req.params.id;
     let newListing = await Listing.findById(id);
-        if(!newListing.owner._id.equals(req.locals.user._id)){
+        if(!newListing.owner._id.equals(req.user._id)){
             req.flash("faliur" , "Cant Delete This");
             return res.redirect(`/listings/${id}`);
         }
@@ -30,7 +30,7 @@ module.exports.isOwner = async (req,res,next)=>{
 module.exports.isReviewAuthor =async (req,res,next)=>{
     let {id , revId} = req.params;
     let review = await Review.findById(revId);
-    if(!review.author._id.equals(req.locals.user_id)){
+    if(!review.author._id.equals(req.user._id)){
         req.flash("faliur" , "Cant Delete This");
         return res.redirect(`/listings/${id}`);
     }

@@ -1,19 +1,32 @@
 <% layout("./layouts/boilerplate.ejs") %>
 <body>
     <form action="/signup" method="post">
-        <label for="username">
-            username
-        </label> 
-     <input type="text" id="username" name="username">
-        <label for="email">
-               Email
-        </label> 
-        <input type="email" id="email" name="email">   
-        <label for="password">
-               Password
-        </label>    
-        <input type="password" id="password" name="password">
-        <button>SignUp</button> 
+        <div class="mb-3 mt-5" style="padding-right: 30rem;padding-left: 30rem;">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" id="username" name="username"class="form-control">
+            <div class="invalid-feedback">
+                Please Enter valid Username.
+            </div>
+        </div>
+        <div class="mb-3" style="padding-right: 30rem;padding-left: 30rem;">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" id="email" name="email" class="form-control">
+            <div class="invalid-feedback">
+                Please Enter valid Username.
+            </div>
+        </div>
+        <div class="mb-3" style="padding-right: 30rem;padding-left: 30rem;">
+            <label for="password" class="form-label" >
+                Password
+            </label>
+            <input type="password" id="password" name="password" class="form-control">
+            <div class="invalid-feedback">
+                Please Enter Password.
+            </div>
+        </div>
+        <div class="btn-cointainer mt-5" style="display: flex; justify-content: center; align-items: center;">
+            <button class="btn" style="background-color: #fe424d; color: aliceblue;">SignUp</button>
+        </div> 
     </form>
 </body>
 

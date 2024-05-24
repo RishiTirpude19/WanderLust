@@ -31,7 +31,7 @@ async function initDb() {
     // Map over the sample data to add the owner property
     const updatedData = initialData.map((obj) => ({
       ...obj,
-      owner: '664c6f3e6055f9c68f8fe164',
+      owner: '664edfeb9fe5b914a46e4e8b',
     }));
     
     // Insert the updated sample data into the Listing collection

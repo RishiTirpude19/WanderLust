@@ -1,36 +1,39 @@
 <% layout("./layouts/boilerplate.ejs") %>
 <body>
-    <h3 style="padding-left: 5rem;">Listing Details: </h3>
-    <ul>
-        <li><%= listing.title %></li>
-        <li><%= listing.description %></li>
-        <li><%= listing.location %></li>
-        <li><%= listing.country %></li>
-        <li>&#8377;<%= listing.price %></li>
-    </ul>  
-    <%if(user._id.equals(listing.owner._id)){%>
-        <form action="/listings/<%= listing._id %>/edit" method="get">
-            <button>Edit</button>
-        </form>
-        <br>
-        <form action="/listings/<%= listing._id %>?_method=DELETE" method="post">
-        <button>
-            Delete
-        </button></form>
-    <% } %> 
-    
-    <hr>
+    <h3 style="padding-left: 5rem;"><%= listing.title %> </h3>
+    <div class="card mt-3" style="width: 18rem; background-color: black; margin-left: 25rem; margin-right: 20rem;">
+        <img src="<%= listing.image %>" alt="listing image" class="mb-3" style="height: 30rem;width: 50rem; border-top-left-radius: 1.5rem; border-top-right-radius:1.5rem ;">
+        <div class="card-body" style="width: 50rem; border-bottom-left-radius: 1.5rem; border-bottom-right-radius:1.5rem ; color: aliceblue;">
+          <li><%= listing.description %></li>
+          <li> <%= listing.location %></li>
+          <li> <%= listing.country %></li>
+          <li>&#8377;<%= listing.price %></li>
+          <%if(user._id.equals(listing.owner._id)){%>
+            <span><form action="/listings/<%= listing._id %>/edit" method="get">
+                <button class="btn btn-dark mt-1">Edit</button>
+                </form>
+                <form action="/listings/<%= listing._id %>?_method=DELETE" method="post">
+                <button class="btn btn-dark mt-1">
+                    Delete
+                </button></form>
+            </span>
+            
+        <% } %>
+        <hr>
     <%if(user) { %>
     <h3>Leave a Review</h3>
     <form action="/listings/<%= listing._id %>/reviews" method="post">
-        <label for="rating">Rating</label>
-        <input type="range" min="1" max="5" name="review[rating]" id="rating" required>
+        <label for="rating" class="form-label">Rating</label>
+        <input type="range" min="1" max="5" name="review[rating]" id="rating" required class="form-range">
         <br>
-        <label for="comment">Comment</label>
-        <textarea name="review[comment]" id="comment" required></textarea>
+        <div class="form-floating">
+            <textarea name="review[comment]" id="comment" required class="form-control" ></textarea>
+            <label for="comment" class="form-label"><b>Comments</b></label>
+        </div>
+        
         <br>
         <br>
-        <button type="submit">Add Review</button>
+        <button type="submit"class="btn btn-dark mt-1">Add Review</button>
         <br>
     </form>
     <%}%>
@@ -38,20 +41,23 @@
     <% if(listing.review.length === 0){%>
         <h4>No Reviews yet !</h4>
     <% } else { %>
-    <h4>All Reviews</h4>
+    <h4>All Reviews...</h4>
     <ul>
         <% for( let review of listing.review){ %>
-            <li><div class="rev-container" style="border: 0.1rem solid #fe424d ;margin: 1rem; padding:1rem ;" >
-                <div><%= review.author.username %></div>
+            <li><div class="rev-container" style="border: 0.1rem solid #fe424d ;" >
+                <div><h3>@<%= review.author.username %></h3></div>
                 <div><b><%= review.rating %> stars</b></div>
-                <div><%= review.comment %></div>
+                <div><b><%= review.comment %></b></div>
                 <br>
                 <form action="/listings/<%= listing._id %>/reviews/<%=review._id%>?_method=DELETE" method="post">
-                    <button>Delete</button>
+                    <button class="btn btn-dark">Delete</button>
                 </form>
             </div>
             </li>
         <% } %>
     </ul>
-    <% } %>
+    <% } %> 
+        </div>
+    </div>
+    
 </body>

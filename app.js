@@ -195,7 +195,6 @@ app.post("/listings/:id/reviews" ,isLoggedIn,async (req,res)=>{
 app.delete("/listings/:id" ,isLoggedIn, isOwner,async(req,res ,next)=>{
     try {
         let id = req.params.id;
-        
         let listing = await Listing.findByIdAndDelete(id);
         res.redirect("/listings");
     } catch (error) {

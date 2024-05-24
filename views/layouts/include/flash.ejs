@@ -1,17 +1,11 @@
-<%if(success.length){%>
-<div class="alert alert-primary d-flex align-items-center" role="alert" style="height: 3rem; display: flex; align-items: center; " >
-    <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
-    <div>
-        <%= success %>
-    </div>
-</div>
-<% } %>
+
 
 <%if(faliur.length){%>
-    <div class="alert alert-danger d-flex align-items-center" role="alert" style="height: 3rem; display: flex; align-items: center; ">
-        <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
-        <div>
-          <%= faliur %>
-        </div>
-      </div>
+  <div class="alert alert-danger alert-dismissible fade show" role="alert" style="margin-left: 30rem; margin-right: 30rem;">
+    <strong><div>
+      <%= faliur %>
+    </div></strong>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
 <%}%>
+
