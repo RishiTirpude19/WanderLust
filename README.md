@@ -20,7 +20,7 @@ WanderLust is a full-featured web application designed to replicate the core fun
 Clone the repository:
 
 ```bash
-  git clone https://github.com/RishiTirpude19/mybnb.git
+  git clone https://github.com/RishiTirpude19/WanderLust.git
   cd WanderLust
 ```
 
