@@ -1,22 +1,30 @@
+
+if(process.env.NODE_ENV != "production"){
+    require('dotenv').config()
+}
+    
 const express = require("express");
 const app = express();
 const mongoose = require('mongoose');
-const MONGO_URL = "mongodb://127.0.0.1:27017/WANDERLUST2"
+//const MONGO_URL = "mongodb://127.0.0.1:27017/WANDERLUST2"
+const MONGO_URL =process.env.MONGODB_URL;
 const port = 8080;
-const Listing = require("./models/listings");
 const path = require("path");
-const { url } = require("inspector");
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
 const bodyParser = require("body-parser");
-const Review = require("./models/review.js");
 const session = require("express-session");
 const flash = require("connect-flash");
-//for signin 
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const User = require("./models/user.js");
 const {isLoggedIn, saveRedirectUrl,isOwner , isReviewAuthor} = require("./authenticate.js");
+const listingController = require("./controllers/listing.js");
+const reviewController = require("./controllers/review.js");
+const userCOntroller = require("./controllers/user.js");
+const {storage } = require("./cloudConfig.js")
+const multer  = require('multer')
+const upload = multer({ storage})
 
 const sessionOptions = {
     secret : "SuperSecretMsg",
@@ -53,191 +61,30 @@ app.engine("ejs" , ejsMate);
 app.get("/",(req,res)=>{
     res.json("root")
 })
-
-// app.get("/demouser" , async (req,res)=>{
-//     let fakeUser = new User({
-//         email : "abc@gmail.com",
-//         username : "ABc",
-//     })
-//     let registeredUser = await User.register(fakeUser , "HelloWorld");
-//     res.send(registeredUser);
-// })
-
-app.get("/signup" , (req,res)=>{
-    res.render("./listings/signup.ejs");
-})
-
-app.post("/signup" ,async (req,res)=>{
-    try {
-        let {username ,email , password} = req.body;
-        const newUser =  new User({username , email});
-        const registeredUser =await User.register(newUser , password);
-        req.login(registeredUser , (err)=>{
-            if(err){
-                return next()
-            }
-            req.flash("success" , "Welcome to WanderLust");
-            res.redirect("/listings");
-        })
-        
-    } catch (error) {
-        req.flash("faliur" , error.message)
-        res.redirect("/signup");
-    }
-})
-
-app.get("/login" ,(req,res)=>{
-    res.render("./listings/login.ejs");
-})
-
-app.get("/logout" , (req,res,next)=>{
-    req.logout((err)=>{
-        if(err){
-           
-            next(err)
-        }
-        req.flash("success" , "Logged Out");
-        res.redirect("/listings");
-    })
-})
-
-app.post("/login" ,saveRedirectUrl, passport.authenticate("local" ,{failureRedirect : "/login" ,failureFlash : true}),async(req ,res)=>{
-    req.flash("success" , "Log in Successful");
-    let redirectUrl = res.locals.redirectUrl || "/listings";
-    res.redirect(redirectUrl);
-})
-
-// app.get("/testSchema" , (req,res)=>{
-//     let sampleListing = new Listing({
-//         title : "My new Villa",
-//         description : "Very nice place to spend Winters",
-//         location : "shillong, Assam",
-//         price : 1200,
-//         country : "INDIA",
-//     })
-
-//     sampleListing.save().then((result)=>{
-//         console.log(result);
-//     }).catch((err)=>{
-//         console.log(err);
-//     })
-
-//     res.json("Saved");
-// })
-
-app.get("/listings" ,async (req,res)=>{
-    let allListings = await Listing.find({});
-    res.render("./listings/listings.ejs" , {allListings})
-})
-
-app.get("/listings/new" , isLoggedIn ,async(req,res)=>{
-    res.render("./listings/new.ejs");
-})
-
-app.post("/listings",isLoggedIn, async(req,res ,next) =>{
-    try {
-        let newListing = new Listing(req.body.listing);
-        newListing.owner = req.user._id;
-        await newListing.save();
-        req.flash("success" , "New Listing Created!");
-        res.redirect("/listings");
-    } catch (error) {
-        next(error);
-    }
-})
-
-app.get("/listings/:id/edit" ,isLoggedIn,isOwner, async(req ,res)=>{
-    let id = req.params.id;
-    let listing = await Listing.findById(id);
-    if(!listing){
-        req.flash("faliur" , "NO SUCH PLACE");
-        res.redirect("/listings");
-    }
-    res.render("./listings/edit.ejs" , {listing});
-})
-
-app.put("/listings/:id" ,isLoggedIn,isOwner, async(req,res,next)=>{
-    try {
-        let id = req.params.id;
-    await Listing.findByIdAndUpdate(id , {...req.body.listing});
-    res.redirect(`/listings/${id}`);
-    } catch (error) {
-        next(error);
-    }   
-})
-
-app.get("/listings/:id" , isLoggedIn,async (req,res)=>{
-    let id = req.params.id;
-    let listing = await Listing.findById(id).populate({path : "review" , populate :{path : "author"}}).populate("owner");
-    if(!listing){
-        req.flash("faliur" , "NO SUCH PLACE");
-        res.redirect("/listings");
-    }
-    res.render("./listings/show.ejs" , {listing})
-})
-
-app.post("/listings/:id/reviews" ,isLoggedIn,async (req,res)=>{
-    let id = req.params.id;
-    let listing = await Listing.findById(id);
-    if(!listing){
-        req.flash("faliur" , "NO SUCH PLACE");
-        res.redirect("/listings");
-    }
-    let newReview = new Review(req.body.review);
-    newReview.author = req.user._id;
-    await newReview.save();
-    listing.review.push(newReview);
-    await listing.save();
-    console.log(listing);
-    res.redirect(`/listings/${id}`);
-})
-
-app.delete("/listings/:id" ,isLoggedIn, isOwner,async(req,res ,next)=>{
-    try {
-        let id = req.params.id;
-        let listing = await Listing.findByIdAndDelete(id);
-        res.redirect("/listings");
-    } catch (error) {
-        next(error)
-    }
-    
-})
-
-app.delete("/listings/:id/reviews/:revId" ,isLoggedIn, isReviewAuthor ,async (req,res)=>{
-    let {id , revId} = req.params;
-    let listing = await Listing.findById(id);
-    if(!listing){
-        req.flash("faliur" , "NO SUCH PLACE");
-        res.redirect("/listings");
-    }
-    await Listing.findByIdAndUpdate(id , {$pull: {review: revId}});
-    await Review.findByIdAndDelete(revId);
-    res.redirect(`/listings/${id}`);
-})
-
+app.get("/signup" , userCOntroller.renderSignUp);
+app.post("/signup" , userCOntroller.signUp)
+app.get("/login" ,userCOntroller.renderLoginForm)
+app.get("/logout" ,userCOntroller.logOut);
+app.post("/login" ,saveRedirectUrl, passport.authenticate("local" ,{failureRedirect : "/login" ,failureFlash : true}),userCOntroller.login);
+app.get("/listings" , listingController.index);
+app.get("/listings/new" , isLoggedIn ,listingController.renderNewForm);
+app.post("/listings",isLoggedIn, upload.single("listing[image]"), listingController.addNewListing);
+app.get("/listings/:id/edit" ,isLoggedIn,isOwner, listingController.editListing);
+app.put("/listings/:id" ,isLoggedIn,isOwner,upload.single("listing[image]"), listingController.updateListing);
+app.get("/listings/:id" , isLoggedIn,listingController.showListing);
+app.post("/listings/:id/reviews" ,isLoggedIn,reviewController.createReview);
+app.delete("/listings/:id" ,isLoggedIn, isOwner,listingController.deleteListing);
+app.delete("/listings/:id/reviews/:revId" ,isLoggedIn, isReviewAuthor ,reviewController.destroyReview);
 app.listen(port , ()=>{
     console.log(`connected to port : ${port}`)
 })
-
 main().then(()=>{
     console.log("DB connected");
 })
 .catch(err => console.log(err));
-
 async function main() {
   await mongoose.connect(MONGO_URL);
 }
-
-// app.get("/testing/new" ,(req,res)=>{
-//     res.render("./listings/test.ejs");
-// })
-
-// app.post("/testing" , (req,res)=>{
-//     let data = req.body;
-//     console.log(data);
-//     res.redirect("/");
-// })
-
 app.use((err , req ,res ,next)=>{
     let {status = 500 , message = "Something went wrong"} = err;
     res.status(status).render("./listings/error.ejs" , {message});

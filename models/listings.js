@@ -9,9 +9,8 @@ const listingSchema = new Schema({
         },
     description : String,
     image : {
-        type : String,
-        // default : "https://cdn4.iconfinder.com/data/icons/standard-free-icons/139/Home01-512.png",
-        // set: (v) => v.trim == "" ? "https://cdn4.iconfinder.com/data/icons/standard-free-icons/139/Home01-512.png" : v,
+        url : String,
+        filename : String,
     },
     location : String,
     price : Number,

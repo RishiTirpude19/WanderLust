@@ -1,7 +1,7 @@
 <% layout("./layouts/boilerplate.ejs") %>
 <body>
     <h3 style="padding-left: 5rem; padding-right: 5rem;">Create New Listing:</h3>
-    <form action="/listings" method = "POST" style="padding-left: 7rem; padding-right: 7rem;" novalidate class="needs-validation">
+    <form action="/listings" method = "POST" style="padding-left: 7rem; padding-right: 7rem;" novalidate class="needs-validation" enctype="multipart/form-data">
         <div>
                 <div class="mb-3">
                 <label for="title"  class="form-label">Title</label>
@@ -38,11 +38,18 @@
                         Please Enter a valid Price.
                       </div>
                 </div>
-                <div class="mb-3">
+                <!-- <div class="mb-3">
                     <label for="image" class="form-label">Image URL</label>
                     <input type="text" name="listing[image]" id="image" class="form-control" required>
                     <div class="invalid-feedback">
                         Please Enter a valid URL.
+                      </div>
+                </div> -->
+                <div class="mb-3">
+                    <label for="image" class="form-label">Upload Image</label>
+                    <input type="file" name="listing[image]" id="image" class="form-control" required>
+                    <div class="invalid-feedback">
+                        Choose correct format
                       </div>
                 </div>
                 <div style="display: flex; align-items: center; justify-content: center; ">

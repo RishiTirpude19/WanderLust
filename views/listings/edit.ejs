@@ -1,19 +1,52 @@
 <% layout("./layouts/boilerplate.ejs") %>
 <body>
     <h3 style="padding-left: 5rem;">Edit Listing</h3>
-    <form method="post" action="/listings/<%= listing._id %>?_method=PUT" style="padding-left: 7rem;">
-        <input type="text" name="listing[title]" placeholder="Enter Title" required>
-        <br><br>
-        <textarea name="listing[description]" placeholder="Enter Description" required></textarea >
-        <br><br>
-        <input type="text" name="listing[location]" placeholder="Enter Location" required>
-        <br><br>
-        <input type="text" name="listing[country]" placeholder="Enter Country" required>
-        <br><br>
-        <input type="number" name="listing[price]" placeholder="Enter Price" required>
-        <br><br>
-        <input type="text" name="listing[image]" placeholder="Enter Image URL" required>
-        <br><br>
-        <button>Edit</button>
+    <form method="post" action="/listings/<%= listing._id %>?_method=PUT" style="padding-left: 7rem; padding-right: 7rem;" enctype="multipart/form-data" novalidate class="needs-validation">
+        <div class="mb-3">
+            <label for="title"  class="form-label">Title</label>
+            <input type="text" name="listing[title]" placeholder="Enter Title" required id="title" class="form-control">
+            <div class="invalid-feedback">
+                Please Enter Title.
+              </div>
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea name="listing[description]" placeholder="Enter Description" id="description" required class="form-control" rows="5" ></textarea >
+                <div class="invalid-feedback">
+                    Please Add a short Description
+                  </div>
+        </div>
+        <div class="mb-3">
+            <label for="location" class="form-label">Location</label>
+            <input type="text" name="listing[location]" placeholder="Enter Location" required id="location" class="form-control">
+            <div class="invalid-feedback">
+                Please Enter Correct Location.
+              </div>
+        </div>
+        <div class="mb-3">
+            <label for="country" class="form-label">Country</label>
+            <input type="text" name="listing[country]" placeholder="Enter Country" required class="form-control" id="country">
+            <div class="invalid-feedback">
+                Please Enter the Country.
+              </div>
+        </div>
+        <div class="mb-3">
+            <label for="price" class="form-label">Price</label>
+            <input type="number" name="listing[price]" placeholder="Enter Price" required class="form-control" id="price">
+            <div class="invalid-feedback">
+                Choose correct format
+              </div>
+        </div>
+        <div class="mb-3">
+            <label for="image" class="form-label">Upload New Image</label>
+            <input type="file" name="listing[image]" id="image" class="form-control" >
+            <div class="invalid-feedback">
+                Choose correct format
+              </div>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: center; ">
+            <button class="btn" style="background-color:#fe424d; color: black; margin : 1rem; font-size: 1.2rem;">Edit</button>
+        </div>
+        
     </form>
 </body>
