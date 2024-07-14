@@ -1,7 +1,7 @@
 
 # WanderLust
 
-WanderLust is a full-featured web application designed to replicate the core functionalities of Airbnb, allowing users to list, discover, and book unique accommodations around the world. Built using the Tech stacks Like MongoDB, Express.js, and Node.js, WanderLust aims to provide a smooth and engaging experience for both hosts and guests.
+WanderLust is a full-featured web application designed to replicate the core functionalities of Airbnb, allowing users to list, discover, and book unique accommodations around the world. Built using the Tech stacks Like EJS, MongoDB, Express.js, and Node.js, WanderLust aims to provide a smooth and engaging experience for both hosts and guests.
 
 
 
